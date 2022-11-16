@@ -20,16 +20,24 @@ except mariadb.Error as e:
 cur = conn.cursor()
   
 def parseXML(xmlfile):
-
+    
     print(type(xmlfile))
-    parser = etree.XMLParser(dtd_validation = False)
-    tree = etree.parse(xmlfile, parser)
-    print(type(tree))
-      
+
+    parser = etree.XMLPullParser(dtd_validation = False)
+
+    context = etree.iterparse(xmlfile, dtd_validation = True )
+    
+    for action, elem in context:
+        if (elem.tag == "journal"):
+            print("%s: %s" % (elem.tag, elem.text))
+
+    print(type(context))
+
+
 def main():
 
     # parse xml file
-    dblp = parseXML("note.xml")
+    dblp = parseXML("dblp.xml")
       
 if __name__ == "__main__":
   
