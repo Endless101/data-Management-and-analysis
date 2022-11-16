@@ -1,6 +1,5 @@
 import org.neo4j.driver.*;
 
-import static org.neo4j.driver.internal.AbstractQueryRunner.parameters;
 
 public class Database {
 
@@ -12,7 +11,7 @@ public class Database {
 
 
    public void queryDatabase(Query query) {
-       /* try (Session session = driver.session()) {
+       try (Session session = driver.session()) {
             String greeting = session.writeTransaction(tx -> {
                 Result result = tx.run(
                         query.query,
@@ -20,6 +19,6 @@ public class Database {
                 return result.single().get(0).asString();
             });
             System.out.println(greeting);
-        }*/
+        }
    }
 }

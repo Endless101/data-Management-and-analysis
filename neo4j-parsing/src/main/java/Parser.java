@@ -1,16 +1,12 @@
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.*;
-import java.io.*;
-import java.util.*;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.xpath.*;
-import javax.xml.stream.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Parser {
 
-    public static Map<String,String> parseElement(XMLEventReader reader, String type) throws XMLStreamException {
+    public static Map<String, String> parseElement(XMLEventReader reader, String type) throws XMLStreamException {
         Map<String, String> parsedElements = new HashMap<String, String>();
         //XMLEvent current = reader.peek();
         while (reader.hasNext()) {
@@ -19,12 +15,13 @@ public class Parser {
                 break;
             } else if (currentElement.isStartElement()) {
 
-               String elementType = currentElement.asStartElement().getName().getLocalPart();
-               System.out.println(elementType);
-               currentElement = reader.nextEvent();
-               if(currentElement.isCharacters()) {
-              parsedElements.put(elementType, currentElement.asCharacters().getData());
-               }
+                String elementType = currentElement.asStartElement().getName().getLocalPart();
+                System.out.println(elementType);
+                reader.nextEvent();
+                currentElement = reader.nextEvent();
+                if (currentElement.isCharacters()) {
+                    parsedElements.put(elementType, currentElement.asCharacters().getData());
+                }
 
             }
             reader.nextEvent();
@@ -41,24 +38,21 @@ public class Parser {
                 //System.out.println("end");
                 break;
             } else if (NewcurrentEvent.isStartElement() && !type.equals(NewcurrentEvent.asStartElement().getName().getLocalPart())) {
-               // System.out.println(NewcurrentEvent.asStartElement().getName().getLocalPart());
-                Map<String,String> parsedElements = parseElement(reader, type);
+                // System.out.println(NewcurrentEvent.asStartElement().getName().getLocalPart());
+                Map<String, String> parsedElements = parseElement(reader, type);
                 System.out.println(parsedElements);
 
-                handleParsedElements(type,parsedElements,db);
+                handleParsedElements(type, parsedElements, db);
             }
-               else if(NewcurrentEvent.isCharacters()) {
-                 //  System.out.println("Characters");
-                }
             reader.nextEvent();
-            }
         }
+    }
 
 
-    private static void handleParsedElements(String type, Map<String,String> parsedElements,Database db) {
-        switch(type) {
+    private static void handleParsedElements(String type, Map<String, String> parsedElements, Database db) {
+        switch (type) {
             case "phdthesis": {
-                PhDNode node = new PhDNode(type,parsedElements);
+                PhDNode node = new PhDNode(type, parsedElements);
                 Query query = node.insertIntoDB();
                 db.queryDatabase(query);
                 System.out.println("inserted");
@@ -68,11 +62,6 @@ public class Parser {
     }
 
 
-    public static void getElementContents(XMLEventReader reader, XMLEvent currentEvent) {
-        if (currentEvent.isStartElement()) {
-            System.out.println(currentEvent.asStartElement().getName().getLocalPart());
-        }
-    }
 }
 
 
