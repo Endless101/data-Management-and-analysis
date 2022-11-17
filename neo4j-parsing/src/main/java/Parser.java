@@ -1,3 +1,5 @@
+import nodes.*;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
@@ -16,7 +18,7 @@ public class Parser {
             } else if (currentElement.isStartElement()) {
 
                 String elementType = currentElement.asStartElement().getName().getLocalPart();
-                System.out.println(elementType);
+                //System.out.println(elementType);
                 reader.nextEvent();
                 currentElement = reader.nextEvent();
                 if (currentElement.isCharacters()) {
@@ -51,12 +53,23 @@ public class Parser {
 
     private static void handleParsedElements(String type, Map<String, String> parsedElements, Database db) {
         switch (type) {
-            case "phdthesis": {
-                PhDNode node = new PhDNode(type, parsedElements);
-                Query query = node.insertIntoDB();
+           /* case "phdthesis": {
+                nodes.PhDNode node = new nodes.PhDNode(type, parsedElements);
+                nodes.Query query = node.insertIntoDB();
                 db.queryDatabase(query);
                 System.out.println("inserted");
-
+            }*/
+            case "article": {
+                ArticleNode node = new ArticleNode(parsedElements);
+                Query query = node.createN4JInsertQuery();
+                db.queryDatabase(query);
+                System.out.println("Inserted article");
+            }
+            case "proceedings": {
+                ProceedingsNode node = new ProceedingsNode(parsedElements);
+                Query query = node.createN4JInsertQuery();
+                db.queryDatabase(query);
+                System.out.println("inserted proceedings");
             }
         }
     }

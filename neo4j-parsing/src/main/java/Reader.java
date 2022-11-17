@@ -13,14 +13,20 @@ public class Reader {
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
         while (reader.hasNext()) {
-            XMLEvent currentEvent = reader.nextEvent();
+            XMLEvent currentEvent = reader.peek();
             if (currentEvent.isStartElement()) {
+
                 switch (currentEvent.asStartElement().getName().getLocalPart()) {
-                    case "phdthesis": {
-                        Parser.parseElements(reader,"phdthesis",db);
+                    case "article": {
+                        Parser.parseElements(reader,"article",db);
                         }
+                    case "proceedings": {
+                        Parser.parseElements(reader,"proceedings",db);
+                        //Parser.parseElements(reader,"mastersthesis",db);
+                    }
                     }
                 }
+            reader.nextEvent();
             }
         }
    }
