@@ -1,3 +1,4 @@
+import nodes.Query;
 import org.neo4j.driver.*;
 
 
@@ -11,14 +12,14 @@ public class Database {
 
 
    public void queryDatabase(Query query) {
-       try (Session session = driver.session()) {
+      /* try (Session session = driver.session()) {
             String greeting = session.writeTransaction(tx -> {
                 Result result = tx.run(
-                        query.query,
-                        org.neo4j.driver.Values.parameters("message", "Hello"));
+                        query.query);
                 return result.single().get(0).asString();
             });
             System.out.println(greeting);
         }
+       */
    }
 }

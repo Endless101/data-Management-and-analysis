@@ -15,17 +15,8 @@ public class Reader {
         while (reader.hasNext()) {
             XMLEvent currentEvent = reader.peek();
             if (currentEvent.isStartElement()) {
-
-                switch (currentEvent.asStartElement().getName().getLocalPart()) {
-                    case "article": {
-                        Parser.parseElements(reader,"article",db);
-                        }
-                    case "proceedings": {
-                        Parser.parseElements(reader,"proceedings",db);
-                        //Parser.parseElements(reader,"mastersthesis",db);
-                    }
-                    }
-                }
+               Parser.parseElements(reader,currentEvent.asStartElement().getName().getLocalPart(),currentEvent,db);
+            }
             reader.nextEvent();
             }
         }

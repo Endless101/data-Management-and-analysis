@@ -3,78 +3,93 @@ import nodes.*;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Parser {
 
-    public static Map<String, String> parseElement(XMLEventReader reader, String type) throws XMLStreamException {
-        Map<String, String> parsedElements = new HashMap<String, String>();
-        //XMLEvent current = reader.peek();
-        while (reader.hasNext()) {
-            XMLEvent currentElement = reader.peek();
-            if (currentElement.isEndElement() && type.equals(currentElement.asEndElement().getName().getLocalPart())) {
-                break;
-            } else if (currentElement.isStartElement()) {
+    static List<AbstractNode> relationsToProcess = new ArrayList<>();
 
-                String elementType = currentElement.asStartElement().getName().getLocalPart();
-                //System.out.println(elementType);
-                reader.nextEvent();
-                currentElement = reader.nextEvent();
-                if (currentElement.isCharacters()) {
-                    parsedElements.put(elementType, currentElement.asCharacters().getData());
+    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent, Database db) throws XMLStreamException {
+       switch (type) {
+           case "proceedings": {
+              AbstractNode node = new ProceedingsNode(parseProceeding(reader,currentEvent));
+              node.relations = relationsToProcess;
+              System.out.println(node.createN4JInsertQuery("EDITOR").query);
+           }
+       }
+    }
+
+
+
+    public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent) throws XMLStreamException {
+        List<String> typeAndContent = new ArrayList<String>();
+        if (currentEvent.isStartElement()) {
+            try {
+                DatabaseEntities elementType = DatabaseEntities.valueOf(currentEvent.asStartElement().getName().getLocalPart());
+                currentEvent = reader.nextEvent();
+                if (currentEvent.isCharacters() && !currentEvent.asCharacters().isIgnorableWhiteSpace()) {
+                    String elementContent = currentEvent.asCharacters().getData();
+                    if (elementType == DatabaseEntities.editor || elementType == DatabaseEntities.author) {
+                        relationsToProcess.add(parsePerson(elementType, elementContent));
+                    } else {
+                        typeAndContent.add(elementType.toString());
+                        typeAndContent.add(elementContent);
+                    }
                 }
-
+            } catch(Exception e) {
+                reader.nextEvent();
             }
-            reader.nextEvent();
         }
-        return parsedElements;
+        return typeAndContent;
     }
 
-    public static void parseElements(XMLEventReader reader, String type, Database db) throws XMLStreamException {
-        // XMLEvent currentEvent = reader.nextEvent();
-        //if(currentEvent.isStartElement() && "phdthesis".equals( currentEvent.asStartElement().getName().getLocalPart())) O
-        while (reader.hasNext()) {
-            XMLEvent NewcurrentEvent = reader.peek();
-            if (NewcurrentEvent.isEndElement() && type.equals(NewcurrentEvent.asEndElement().getName().getLocalPart())) {
-                //System.out.println("end");
-                break;
-            } else if (NewcurrentEvent.isStartElement() && !type.equals(NewcurrentEvent.asStartElement().getName().getLocalPart())) {
-                // System.out.println(NewcurrentEvent.asStartElement().getName().getLocalPart());
-                Map<String, String> parsedElements = parseElement(reader, type);
-                System.out.println(parsedElements);
-
-                handleParsedElements(type, parsedElements, db);
-            }
-            reader.nextEvent();
-        }
+    private static PersonNode parsePerson(DatabaseEntities personType, String name) {
+        Map<String,List<String>> personContents = new HashMap<>();
+        List<String> nameInList = new ArrayList<>();
+        nameInList.add(name);
+        personContents.put(personType.toString(),nameInList);
+        return new PersonNode(personType.toString(),personContents);
     }
 
-
-    private static void handleParsedElements(String type, Map<String, String> parsedElements, Database db) {
-        switch (type) {
-           /* case "phdthesis": {
-                nodes.PhDNode node = new nodes.PhDNode(type, parsedElements);
-                nodes.Query query = node.insertIntoDB();
-                db.queryDatabase(query);
-                System.out.println("inserted");
-            }*/
-            case "article": {
-                ArticleNode node = new ArticleNode(parsedElements);
-                Query query = node.createN4JInsertQuery();
-                db.queryDatabase(query);
-                System.out.println("Inserted article");
+    public static Map<String,List<String>> parseProceeding(XMLEventReader reader, XMLEvent currentEvent) throws XMLStreamException {
+        Map<String,List<String>> contents= new HashMap<String,List<String>>();
+        while(!(currentEvent.isEndElement() && currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.proceedings.toString()))) {
+            if(currentEvent.isStartElement()) {
+                List<String> parsedElement = parseSingleElement(reader, currentEvent);
+                if(!parsedElement.isEmpty()) {
+                    String type = parsedElement.get(0);
+                    String content = parsedElement.get(1);
+                    if(!contents.containsKey(type)) {
+                        List<String> bucket = new ArrayList<String>();
+                        bucket.add(content);
+                        contents.put(type, bucket);
+                    } else {
+                       List<String> updatedBucket = contents.get(type);
+                       updatedBucket.add(content);
+                       contents.put(type,updatedBucket);
+                    }
+                }
             }
-            case "proceedings": {
-                ProceedingsNode node = new ProceedingsNode(parsedElements);
-                Query query = node.createN4JInsertQuery();
-                db.queryDatabase(query);
-                System.out.println("inserted proceedings");
-            }
+         currentEvent = reader.nextEvent();
         }
+      // System.out.println(contents);
+        return contents;
     }
 
 
+    public enum DatabaseEntities {
+        proceedings,
+        editor,
+        title,
+        booktitle,
+        publisher,
+        volume,
+        year,
+        author,
+        journal,
+        number,
+        pages;
+    }
 }
 
 
