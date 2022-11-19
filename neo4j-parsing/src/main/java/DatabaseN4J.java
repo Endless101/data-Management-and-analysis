@@ -2,11 +2,11 @@ import nodes.Query;
 import org.neo4j.driver.*;
 
 
-public class Database {
+public class DatabaseN4J {
 
     Driver driver;
 
-    Database() {
+    DatabaseN4J() {
       driver = GraphDatabase.driver("bolt://localhost:7687",AuthTokens.basic("neo4j", "password"));
     }
 

@@ -31,7 +31,7 @@ public class Parser {
         return parsedElements;
     }
 
-    public static void parseElements(XMLEventReader reader, String type, Database db) throws XMLStreamException {
+    public static void parseElements(XMLEventReader reader, String type, DatabaseN4J db) throws XMLStreamException {
         // XMLEvent currentEvent = reader.nextEvent();
         //if(currentEvent.isStartElement() && "phdthesis".equals( currentEvent.asStartElement().getName().getLocalPart())) O
         while (reader.hasNext()) {
@@ -51,7 +51,7 @@ public class Parser {
     }
 
 
-    private static void handleParsedElements(String type, Map<String, String> parsedElements, Database db) {
+    private static void handleParsedElements(String type, Map<String, String> parsedElements, DatabaseN4J db) {
         switch (type) {
            /* case "phdthesis": {
                 nodes.PhDNode node = new nodes.PhDNode(type, parsedElements);

@@ -1,6 +1,6 @@
 import java.sql.*;
 
-public class Database2 {
+public class DatabaseMDB {
 
     // JDBC driver name and database URL
 

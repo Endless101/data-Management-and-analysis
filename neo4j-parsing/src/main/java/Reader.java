@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 public class Reader {
 
 
-    public static void streamReader(Database db) throws FileNotFoundException, javax.xml.stream.XMLStreamException {
+    public static void streamReader(DatabaseN4J db) throws FileNotFoundException, javax.xml.stream.XMLStreamException {
         System.setProperty("entityExpansionLimit", "20000000");
         FileInputStream inputStream = new FileInputStream("resources/dblp.xml");
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();

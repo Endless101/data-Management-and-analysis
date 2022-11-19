@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 
 public class Main {
     public static void main(String[] args) throws XMLStreamException, javax.xml.stream.XMLStreamException, FileNotFoundException {
-        Database db = new Database();
+        DatabaseN4J db = new DatabaseN4J();
         Reader.streamReader(db);
     }
 
