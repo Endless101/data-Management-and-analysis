@@ -1,3 +1,4 @@
+import nodes.Query;
 import org.neo4j.driver.*;
 
 
