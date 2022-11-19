@@ -3,7 +3,7 @@ package nodes;
 public interface DBNode {
 
 
-    Query createN4JInsertQuery(String relation);
+    Query createN4JInsertQuery();
 
 
 }

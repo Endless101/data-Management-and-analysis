@@ -7,19 +7,14 @@ public class Database {
     Driver driver;
 
     Database() {
-      driver = GraphDatabase.driver("bolt://localhost:7687",AuthTokens.basic("neo4j", "password"));
+      driver = GraphDatabase.driver("bolt://localhost:11005",AuthTokens.basic("neo4j", "password"));
     }
 
 
    public void queryDatabase(Query query) {
-      /* try (Session session = driver.session()) {
-            String greeting = session.writeTransaction(tx -> {
-                Result result = tx.run(
-                        query.query);
-                return result.single().get(0).asString();
-            });
-            System.out.println(greeting);
+    /* try (Session session = driver.session()) {
+            session.run(query.query);
         }
-       */
+*/
    }
 }

@@ -1,5 +1,5 @@
 import nodes.*;
-
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
@@ -9,17 +9,53 @@ public class Parser {
 
     static List<AbstractNode> relationsToProcess = new ArrayList<>();
 
-    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent, Database db) throws XMLStreamException {
-       switch (type) {
-           case "proceedings": {
-              AbstractNode node = new ProceedingsNode(parseProceeding(reader,currentEvent));
-              node.relations = relationsToProcess;
-              System.out.println(node.createN4JInsertQuery("EDITOR").query);
-           }
-       }
+    public static void parseConferenceOrJournal(String key, Map<String,List<String>> contents) {
+            List<String> name = contents.get("booktitle");
+            Map<String, List<String>> newContents = new HashMap<>();
+            AbstractNode node;
+        if (key.startsWith("key='conf")) {
+            newContents.put("conference", name);
+            node = new ConferenceNode(newContents);
+            relationsToProcess.add(node);
+         //   System.out.println(relationsToProcess.size());
+        } else if (key.startsWith("key=journals")) {
+            newContents.put("journal",name);
+            node = new JournalNode(newContents);
+            relationsToProcess.add(node);
+        }
+
+
     }
 
+    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent, Database db) throws XMLStreamException {
+        try {
+            DatabaseEntities entityType = DatabaseEntities.valueOf(type);
+            AbstractNode node;
+            if (entityType == DatabaseEntities.proceedings || entityType == DatabaseEntities.article) {
+                if(entityType == DatabaseEntities.article) {
+                    Map<String,List<String>> contents = parse(reader, currentEvent,currentEvent);
+                    String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
+                    node = new ArticleNode(contents);
+                    parseConferenceOrJournal(key,contents);
 
+                } else {
+                    Map<String,List<String>> contents = parse(reader, currentEvent,currentEvent);
+                    String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
+                    node = new ProceedingsNode(contents);
+                    parseConferenceOrJournal(key,contents);
+                }
+                 System.out.println(relationsToProcess.size());
+                for(AbstractNode n : relationsToProcess) {
+                   node.addRelation(new Relation(node,n,n.getType()));
+                }
+                relationsToProcess.clear();
+                db.queryDatabase(node.createN4JInsertQuery());
+
+
+            }
+        } catch (Exception ignored) {
+    }
+       }
 
     public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent) throws XMLStreamException {
         List<String> typeAndContent = new ArrayList<String>();
@@ -51,9 +87,11 @@ public class Parser {
         return new PersonNode(personType.toString(),personContents);
     }
 
-    public static Map<String,List<String>> parseProceeding(XMLEventReader reader, XMLEvent currentEvent) throws XMLStreamException {
+    public static Map<String,List<String>> parse(XMLEventReader reader, XMLEvent currentEvent, XMLEvent startElement) throws XMLStreamException {
         Map<String,List<String>> contents= new HashMap<String,List<String>>();
-        while(!(currentEvent.isEndElement() && currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.proceedings.toString()))) {
+        while(!(currentEvent.isEndElement() &&
+                        (currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.proceedings.toString()) ||
+                        currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.article.toString())))) {
             if(currentEvent.isStartElement()) {
                 List<String> parsedElement = parseSingleElement(reader, currentEvent);
                 if(!parsedElement.isEmpty()) {
@@ -72,12 +110,12 @@ public class Parser {
             }
          currentEvent = reader.nextEvent();
         }
-      // System.out.println(contents);
         return contents;
     }
 
 
     public enum DatabaseEntities {
+        article,
         proceedings,
         editor,
         title,
@@ -93,29 +131,5 @@ public class Parser {
 }
 
 
-                /*   case "mastersthesis": {
-                       List<String> parsedElements = parseElements(reader, "mastersthesis");
-                       for (String s : parsedElements) {
-                           System.out.println(s);
-                       }
-                   }
-                   case "article": {
-                       List<String> parsedElements = parseElements(reader, "article");
-                       for (String s : parsedElements) {
-                           System.out.println(s);
-                           }
-                       }
-                case "proceedings": {
-                    List<String> parsedElements = parseElements(reader, "proceedings");
-                    for (String s : parsedElements) {
-                        System.out.println(s);
-                    }
-                }
-                 case "inproceedings": {
-                     List<String> parsedElements = parseElements(reader, "inproceedings");
-                     for (String s : parsedElements) {
-                         System.out.println(s);
-                     }
-                 }*/
 
 

@@ -1,9 +1,9 @@
-import jdk.internal.util.xml.XMLStreamException;
+//import jdk.internal.util.xml.XMLStreamException;
 
 import java.io.FileNotFoundException;
 
 public class Main {
-    public static void main(String[] args) throws XMLStreamException, javax.xml.stream.XMLStreamException, FileNotFoundException {
+    public static void main(String[] args) throws javax.xml.stream.XMLStreamException, FileNotFoundException {
         Database db = new Database();
         Reader.streamReader(db);
     }
