@@ -3,8 +3,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
+import java.util.concurrent.Semaphore;
 public class Reader {
+
 
 
     public static void streamReader(Database db) throws FileNotFoundException, javax.xml.stream.XMLStreamException {
@@ -19,7 +20,7 @@ public class Reader {
             }
             XMLEvent currentEvent = reader.peek();
             if (currentEvent.isStartElement()) {
-               Parser.parseElements(reader,currentEvent.asStartElement().getName().getLocalPart(),currentEvent,db);
+                   Parser.parseElements(reader,currentEvent.asStartElement().getName().getLocalPart(),currentEvent,db);
             }
             i++;
             reader.nextEvent();

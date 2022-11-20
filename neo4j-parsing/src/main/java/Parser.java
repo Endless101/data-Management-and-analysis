@@ -44,7 +44,7 @@ public class Parser {
                     node = new ProceedingsNode(contents);
                     parseConferenceOrJournal(key,contents);
                 }
-                 System.out.println(relationsToProcess.size());
+               //  System.out.println(relationsToProcess.size());
                 for(AbstractNode n : relationsToProcess) {
                    node.addRelation(new Relation(node,n,n.getType()));
                 }
