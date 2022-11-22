@@ -11,20 +11,18 @@ public class AbstractNode implements DBNode {
 
     List<Relation> relations = new ArrayList<>();
 
-    public String getType() {
-        return type;
-    }
-    public void addRelation(Relation relation) {
-        relations.add(relation);
-    }
+    public String getType() { return type; }
+    public void addRelation(Relation relation) { relations.add(relation); }
 
-    public String[] createContent() {
+    public String[] getContent() {
+       /* String[] cleanedContents = new String[contents.size()];
+        List<String> contentValues = (List<String>) contents.values();
+        for (int i = 0; i< contents.size(); i++) {
+            cleanedContents[i] = contentValues.get()
+        }*/
         return contents.values().toArray(new String[contents.size()]);
     }
-    public String[] createHeader() {
-
-        return contents.keySet().toArray(new String[contents.size()]);
-    }
+    public String[] createHeader() { return contents.keySet().toArray(new String[contents.size()]);}
 
 
     @Override
