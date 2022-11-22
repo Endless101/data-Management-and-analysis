@@ -1,10 +1,9 @@
 import nodes.Query;
 import org.neo4j.driver.*;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
-public class Database {
+public class DatabaseN4J {
 
         Session session;
         class HandleTransaction extends Thread {
@@ -39,7 +38,7 @@ public class Database {
 
        volatile List<Query> queries = new ArrayList<>();
 
-        public Database() {
+        public DatabaseN4J() {
             driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "password"));
             session = driver.session();
         }
