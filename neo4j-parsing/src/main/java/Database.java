@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 public class Database {
 
-        class HandleTransaction extends Thread{
+        Session session;
+        class HandleTransaction extends Thread {
             Session session;
             List<Query> queries;
 
@@ -17,43 +18,41 @@ public class Database {
 
             @Override
             public void run() {
-                Query[] queriesArray = queries.toArray(new Query[queries.size()]);
-
-                try {
-                    session.writeTransaction(tx -> {
-                        for (Query q : queriesArray) {
+                for (int i = 0; i <5; i++){
+                    try (Transaction tx = session.beginTransaction()) {
+                        for (Query q : queries) {
                             tx.run(q.query);
                         }
-                        tx.commit();
                         //System.out.println("commited");
-                        return "Hello" ;
-                    });
-                } catch (Exception e) {
-                    System.out.println(e);
+                    } catch (Throwable e) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
                 }
-                System.out.println("Finished" + this.toString());
             }
         }
         Driver driver;
 
 
-        List<Query> queries = new ArrayList<>();
+       volatile List<Query> queries = new ArrayList<>();
 
         public Database() {
-            driver = GraphDatabase.driver("bolt://localhost:11003", AuthTokens.basic("neo4j", "password"));
-
+            driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "password"));
+            session = driver.session();
         }
-
-        public void queryDatabase(Query query) {
+      synchronized  public void queryDatabase(Query query) {
             if(queries.size() == 1000) {
-               // System.out.println(queries);
-                HandleTransaction transactionThread = new HandleTransaction(queries);
+                for(Query q: queries) {
+                    session.run(q.query);
+                }
                 queries.clear();
-                transactionThread.start();
-
             } else {
                // System.out.println("adding query");
                 queries.add(query);
             }
+            //session.run(query.query);
         }
     }

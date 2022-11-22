@@ -5,11 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.concurrent.Semaphore;
 public class Reader {
-
-
-
     public static void streamReader(Database db) throws FileNotFoundException, javax.xml.stream.XMLStreamException {
-        System.setProperty("entityExpansionLimit", "20000000");
+        System.setProperty("entityExpansionLimit", "0");
         FileInputStream inputStream = new FileInputStream("resources/dblp.xml");
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
@@ -18,7 +15,7 @@ public class Reader {
             if(i % 100000000 == 0) {
                 System.out.println(i);
             }
-            XMLEvent currentEvent = reader.peek();
+           XMLEvent currentEvent = reader.peek();
             if (currentEvent.isStartElement()) {
                    Parser.parseElements(reader,currentEvent.asStartElement().getName().getLocalPart(),currentEvent,db);
             }

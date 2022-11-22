@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class AbstractNode implements DBNode {
     String type;
-    Map<String, List<String>> contents;
+    Map<String,String> contents;
 
     List<Relation> relations = new ArrayList<>();
 
@@ -18,6 +18,15 @@ public class AbstractNode implements DBNode {
         relations.add(relation);
     }
 
+    public String[] createContent() {
+        return contents.values().toArray(new String[contents.size()]);
+    }
+    public String[] createHeader() {
+
+        return contents.keySet().toArray(new String[contents.size()]);
+    }
+
+
     @Override
     public String toString() {
         return "nodes.AbstractNode{" +
@@ -26,8 +35,11 @@ public class AbstractNode implements DBNode {
                 '}';
     }
 
-    AbstractNode(String type, Map<String, List<String>> contents) {
+    AbstractNode(String type, Map<String,String> contents) {
         this.type = type;
+        for(String key : contents.keySet()){
+            contents.put(key,clean(contents.get(key)));
+        }
         this.contents = contents;
     }
     private String clean(String s) {
@@ -38,9 +50,8 @@ public class AbstractNode implements DBNode {
     protected String createAttributeList() {
         List<String> attributes = new ArrayList<String>();
         contents.forEach((k,v) -> {
-            if(v.size()==1) {
-            attributes.add(k+": " + clean(v.get(0)));
-        }});
+            attributes.add(k+": " + clean(v));
+            });
        String contentString = attributes.toString();
         int contentsStringLength = contentString.length();
         return "{"+contentString.substring(1, (contentsStringLength-1))+"}";
@@ -64,6 +75,7 @@ public class AbstractNode implements DBNode {
     }
     @Override
     public Query createN4JInsertQuery() {
+       // System.out.println(contents);
        // System.out.println("Inserting into database");
         String queryString = "CREATE "+ createNode(type) + " "+ createRelations(type);
        // System.out.println(queryString);
