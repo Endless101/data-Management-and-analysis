@@ -7,8 +7,6 @@ import java.util.*;
 
 public class Parser {
 
-    static List<AbstractNode> relationsToProcess = new ArrayList<>();
-
     public static void parseConferenceOrJournal(String key, Map<String,String> contents) {
             String name = contents.get("booktitle");
             Map<String, String> newContents = new HashMap<>();
@@ -17,67 +15,78 @@ public class Parser {
         if (key.startsWith("key='conf")) {
             newContents.put("conference", name);
             node = new ConferenceNode(newContents);
-            Writer.writeHeader(node,node.getType()+".csv");
-            Writer.writeHeader(node, node.getType()+".csv");
-        } else if (key.startsWith("key=journal")) {
-            newContents.put("journal",name);
+            Writer.writeContent(node, node.getType()+".csv");
+        } else if (key.startsWith("key='journal")) {
+            newContents.put("journal", contents.get("journal"));
             node = new JournalNode(newContents);
-            Writer.writeHeader(node,node.getType()+".csv");
-            Writer.writeHeader(node, node.getType()+".csv");
+            Writer.writeContent(node,node.getType()+".csv");
         }
 
 
     }
 
-    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent, Database db) throws XMLStreamException {
+    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent) throws XMLStreamException {
+
         try {
             DatabaseEntities entityType = DatabaseEntities.valueOf(type);
-            AbstractNode node;
-            if (entityType == DatabaseEntities.proceedings || entityType == DatabaseEntities.article) {
+           // System.out.println(entityType);
+            AbstractNode node = null;
+            if (entityType == DatabaseEntities.proceedings || entityType == DatabaseEntities.article || entityType == DatabaseEntities.inproceedings) {
+             //   System.out.println(entityType);
+                Map<String,String> contents = parse(reader, currentEvent,currentEvent);
+              //  System.out.println(contents);
+                String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
                 if(entityType == DatabaseEntities.article) {
-                    Map<String,String> contents = parse(reader, currentEvent,currentEvent);
-                    String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
+                //    System.out.println("here");
                     node = new ArticleNode(contents);
                     parseConferenceOrJournal(key,contents);
 
-                } else {
-                    Map<String,String> contents = parse(reader, currentEvent,currentEvent);
-                    String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
+                } else if(entityType == DatabaseEntities.proceedings) {
+                 //   System.out.println("here");
                     node = new ProceedingsNode(contents);
                     parseConferenceOrJournal(key,contents);
+                } else {
+                 //   System.out.println("here");
+                    node = new InproceedingsNode(contents);
+                    parseConferenceOrJournal(key,contents);
                 }
-                for(AbstractNode n : relationsToProcess) {
-                   node.addRelation(new Relation(node,n,n.getType()));
-                }
-                relationsToProcess.clear();
-                    Writer.writeHeader(node, node.getType()+".csv");
-                    Writer.writeContent(node,node.getType()+".csv");
+                Writer.writeContent(node,node.getType()+".csv");
 
 
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            //S//ystem.out.println(e);
     }
        }
 
     public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent,XMLEvent startEvent) throws XMLStreamException {
         List<String> typeAndContent = new ArrayList<>();
-        if (currentEvent.isStartElement()) {
+        if (currentEvent.isStartElement() && currentEvent.asStartElement().getName().getLocalPart() != startEvent.asStartElement().getName().getLocalPart()) {
             try {
                 DatabaseEntities elementType = DatabaseEntities.valueOf(currentEvent.asStartElement().getName().getLocalPart());
-                currentEvent = reader.nextEvent();
-                if (currentEvent.isCharacters() && !currentEvent.asCharacters().isIgnorableWhiteSpace()) {
-                    String elementContent = currentEvent.asCharacters().getData();
-                    if (elementType == DatabaseEntities.editor || elementType == DatabaseEntities.author) {
-                        PersonNode pnode = parsePerson(elementType,elementContent, startEvent);
-                        Writer.writeHeader(pnode, pnode.getType()+".csv");
-                        Writer.writeContent(pnode, pnode.getType()+".csv");
+
+                while(reader.hasNext()) {
+                    if(currentEvent.isEndElement()) {
+                        break;
                     } else {
-                        typeAndContent.add(elementType.toString());
-                        typeAndContent.add(elementContent);
+                        //System.out.println(currentEvent);
+                        if (currentEvent.isCharacters() && !currentEvent.asCharacters().isIgnorableWhiteSpace()) {
+                            String elementContent = currentEvent.asCharacters().getData();
+                            if (elementType == DatabaseEntities.editor || elementType == DatabaseEntities.author) {
+                                PersonNode pnode = parsePerson(elementType, elementContent, startEvent);
+                                Writer.writeContent(pnode, pnode.getType() + ".csv");
+                            } else {
+                                typeAndContent.add(elementType.toString());
+                                typeAndContent.add(elementContent);
+                                break;
+                            }
+                        }
                     }
+                   currentEvent = reader.nextEvent();
                 }
             } catch(Exception e) {
-                reader.nextEvent();
+                //System.out.println(e);
+                //reader.nextEvent();
             }
         }
         return typeAndContent;
@@ -93,19 +102,20 @@ public class Parser {
 
     public static Map<String,String> parse(XMLEventReader reader, XMLEvent currentEvent, XMLEvent startElement) throws XMLStreamException {
         String key = startElement.asStartElement().getAttributeByName(new QName("key")).toString().replaceFirst("key=","");
-        Map<String,String> contents = new HashMap<>();
-        contents.put("key",key);
-        if(startElement.asStartElement().getName().getLocalPart() == DatabaseEntities.proceedings.toString())
-        {
-            contents = ProceedingsNode.proceedingsMap();
-            contents.put("key",key);
-        } else {
+        Map<String,String> contents = null;
+        String entityType = startElement.asStartElement().getName().getLocalPart();
+        if(entityType == "article") {
             contents = ArticleNode.articleMap();
-            contents.put("key",key);
+        } else if (entityType == "proceedings") {
+            contents = ProceedingsNode.proceedingsMap();
+        } else {
+            contents = InproceedingsNode.inproceedingsMap();
         }
+        contents.put("key",key);
         while(!(currentEvent.isEndElement() &&
                         (currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.proceedings.toString()) ||
-                        currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.article.toString())))) {
+                        currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.article.toString()) ||
+                               currentEvent.asEndElement().getName().getLocalPart().equals(DatabaseEntities.inproceedings.toString())))) {
             if(currentEvent.isStartElement()) {
                 List<String> parsedElement = parseSingleElement(reader, currentEvent,startElement);
                 if(!parsedElement.isEmpty()) {
@@ -114,13 +124,15 @@ public class Parser {
                     contents.put(type,content);
                 }
             }
-         currentEvent = reader.nextEvent();
+          currentEvent = reader.nextEvent();
         }
+        System.out.println(contents);
         return contents;
     }
 
 
     public enum DatabaseEntities {
+        inproceedings,
         article,
         proceedings,
         editor,
