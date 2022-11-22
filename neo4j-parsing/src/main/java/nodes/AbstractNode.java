@@ -12,17 +12,8 @@ public class AbstractNode implements DBNode {
     List<Relation> relations = new ArrayList<>();
 
     public String getType() { return type; }
-    public void addRelation(Relation relation) { relations.add(relation); }
 
-    public String[] getContent() {
-       /* String[] cleanedContents = new String[contents.size()];
-        List<String> contentValues = (List<String>) contents.values();
-        for (int i = 0; i< contents.size(); i++) {
-            cleanedContents[i] = contentValues.get()
-        }*/
-        return contents.values().toArray(new String[contents.size()]);
-    }
-    public String[] createHeader() { return contents.keySet().toArray(new String[contents.size()]);}
+    public String[] getContent() {return contents.values().toArray(new String[0]);}
 
 
     @Override
@@ -35,9 +26,7 @@ public class AbstractNode implements DBNode {
 
     AbstractNode(String type, Map<String,String> contents) {
         this.type = type;
-        for(String key : contents.keySet()){
-            contents.put(key,clean(contents.get(key)));
-        }
+        contents.replaceAll((k, v) -> clean(contents.get(k)));
         this.contents = contents;
     }
     private String clean(String s) {
@@ -46,10 +35,8 @@ public class AbstractNode implements DBNode {
     }
 
     protected String createAttributeList() {
-        List<String> attributes = new ArrayList<String>();
-        contents.forEach((k,v) -> {
-            attributes.add(k+": " + clean(v));
-            });
+        List<String> attributes = new ArrayList<>();
+        contents.forEach((k,v) -> attributes.add(k+": " + clean(v)));
        String contentString = attributes.toString();
         int contentsStringLength = contentString.length();
         return "{"+contentString.substring(1, (contentsStringLength-1))+"}";
@@ -65,7 +52,7 @@ public class AbstractNode implements DBNode {
         Random rand = new Random();
        if(!relations.isEmpty()){
            for(Relation r: relations) {
-               String toVar = "_"+Integer.toString(Math.abs(rand.nextInt()));
+               String toVar = "_"+ Math.abs(rand.nextInt());
                relationString = relationString + "MERGE " + r.to.createNode(toVar) + "-[:"+r.relationType+"]->" +"("+fromVar+")"+" ";
            }
        }
@@ -73,10 +60,7 @@ public class AbstractNode implements DBNode {
     }
     @Override
     public Query createN4JInsertQuery() {
-       // System.out.println(contents);
-       // System.out.println("Inserting into database");
         String queryString = "CREATE "+ createNode(type) + " "+ createRelations(type);
-       // System.out.println(queryString);
         return new Query(queryString);
     }
 }

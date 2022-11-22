@@ -25,28 +25,28 @@ public class Parser {
 
     }
 
-    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent) throws XMLStreamException {
+    public static void parseElements(XMLEventReader reader, String type, XMLEvent currentEvent) {
 
         try {
             DatabaseEntities entityType = DatabaseEntities.valueOf(type);
-           // System.out.println(entityType);
-            AbstractNode node = null;
+
+            AbstractNode node;
             if (entityType == DatabaseEntities.proceedings || entityType == DatabaseEntities.article || entityType == DatabaseEntities.inproceedings) {
-             //   System.out.println(entityType);
+
                 Map<String,String> contents = parse(reader, currentEvent,currentEvent);
-              //  System.out.println(contents);
+
                 String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
                 if(entityType == DatabaseEntities.article) {
-                //    System.out.println("here");
+
                     node = new ArticleNode(contents);
                     parseConferenceOrJournal(key,contents);
 
                 } else if(entityType == DatabaseEntities.proceedings) {
-                 //   System.out.println("here");
+
                     node = new ProceedingsNode(contents);
                     parseConferenceOrJournal(key,contents);
                 } else {
-                 //   System.out.println("here");
+
                     node = new InproceedingsNode(contents);
                     parseConferenceOrJournal(key,contents);
                 }
@@ -54,14 +54,14 @@ public class Parser {
 
 
             }
-        } catch (Exception e) {
-            //S//ystem.out.println(e);
+        } catch (Exception ignored) {
+
     }
        }
 
-    public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent,XMLEvent startEvent) throws XMLStreamException {
+    public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent,XMLEvent startEvent) {
         List<String> typeAndContent = new ArrayList<>();
-        if (currentEvent.isStartElement() && currentEvent.asStartElement().getName().getLocalPart() != startEvent.asStartElement().getName().getLocalPart()) {
+        if (currentEvent.isStartElement() && !currentEvent.asStartElement().getName().getLocalPart().equals(startEvent.asStartElement().getName().getLocalPart())) {
             try {
                 DatabaseEntities elementType = DatabaseEntities.valueOf(currentEvent.asStartElement().getName().getLocalPart());
 
@@ -69,7 +69,7 @@ public class Parser {
                     if(currentEvent.isEndElement()) {
                         break;
                     } else {
-                        //System.out.println(currentEvent);
+
                         if (currentEvent.isCharacters() && !currentEvent.asCharacters().isIgnorableWhiteSpace()) {
                             String elementContent = currentEvent.asCharacters().getData();
                             if (elementType == DatabaseEntities.editor || elementType == DatabaseEntities.author) {
@@ -84,9 +84,7 @@ public class Parser {
                     }
                    currentEvent = reader.nextEvent();
                 }
-            } catch(Exception e) {
-                //System.out.println(e);
-                //reader.nextEvent();
+            } catch(Exception ignored) {
             }
         }
         return typeAndContent;
@@ -102,11 +100,11 @@ public class Parser {
 
     public static Map<String,String> parse(XMLEventReader reader, XMLEvent currentEvent, XMLEvent startElement) throws XMLStreamException {
         String key = startElement.asStartElement().getAttributeByName(new QName("key")).toString().replaceFirst("key=","");
-        Map<String,String> contents = null;
+        Map<String,String> contents;
         String entityType = startElement.asStartElement().getName().getLocalPart();
-        if(entityType == "article") {
+        if("article".equals(entityType)) {
             contents = ArticleNode.articleMap();
-        } else if (entityType == "proceedings") {
+        } else if ("proceedings".equals(entityType)) {
             contents = ProceedingsNode.proceedingsMap();
         } else {
             contents = InproceedingsNode.inproceedingsMap();
@@ -126,7 +124,6 @@ public class Parser {
             }
           currentEvent = reader.nextEvent();
         }
-        System.out.println(contents);
         return contents;
     }
 
@@ -144,7 +141,7 @@ public class Parser {
         author,
         journal,
         number,
-        pages;
+        pages
     }
 }
 

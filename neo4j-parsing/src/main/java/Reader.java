@@ -17,7 +17,6 @@ public class Reader {
             }
            XMLEvent currentEvent = reader.nextEvent();
             if (currentEvent.isStartElement()) {
-                  //  System.out.println(currentEvent.asStartElement().getName().getLocalPart());
                    Parser.parseElements(reader,currentEvent.asStartElement().getName().getLocalPart(),currentEvent);
             }
             i++;
