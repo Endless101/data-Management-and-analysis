@@ -12,44 +12,43 @@ public class DatabaseMDB {
             System.out.println("Creating table in given database...");
             statement = connection.createStatement();
 
-            String sql_article = "CREATE TABLE articles "
-                    + "(article_key VARCHAR(255) not NULL, "
-                    + " authors VARCHAR(255), "
-                    + " title VARCHAR(255), "
+            String sql_article = "CREATE TABLE article "
+                    + " (volume VARCHAR(255), "
+                    + " number VARCHAR(255), "
+                    + " pages VARCHAR(255), "
                     + " journal VARCHAR(255), "
                     + " year VARCHAR(255), "
-                    + " pages VARCHAR(255), "
-                    + " volume VARCHAR(2040), "
-                    + " number VARCHAR(255)) ";
-            String sql_proceeding = "CREATE TABLE proceedings "
-                    + "(proceeding_key VARCHAR(255) not NULL, "
-                    + " editor VARCHAR(255), "
-                    + " title VARCHAR(255), "
-                    + " booktitle VARCHAR(255), "
+                    + " publisher VARCHAR(255), "
+                    + " title VARCHAR(2040), "
+                    + " article_key VARCHAR(255) not NULL) ";
+            String sql_proceedings = "CREATE TABLE proceedings "
+                    + " (volume VARCHAR(255), "
                     + " year VARCHAR(255), "
-                    + " volume VARCHAR(2040))";
-            String sql_inproceeding = "CREATE TABLE inproceedings "
-                    + "(inproceeding_key VARCHAR(255) not NULL, "
-                    + " title VARCHAR(255), "
+                    + " publisher VARCHAR(255), "
                     + " booktitle VARCHAR(255), "
+                    + " title VARCHAR(2040), "
+                    + " proceedings_key VARCHAR(255) not NULL) ";
+            String sql_inproceeding = "CREATE TABLE inproceeding "
+                    + " (pages VARCHAR(255), "
                     + " year VARCHAR(255), "
-                    + " pages VARCHAR(255)) ";
-            String sql_author = "CREATE TABLE authors "
-                    + "(article_key VARCHAR(255) not NULL, "
-                    + " inproceeding_key VARCHAR(255) not NULL,"
-                    + " name VARCHAR(255) )";
-            String sql_editor = "CREATE TABLE editors "
-                    + "(proceeding_key VARCHAR(255) not NULL,"
-                    + " name VARCHAR(255) )";
-            String sql_journal = "CREATE TABLE journals "
-                    + "(article_key VARCHAR(255) not NULL, "
-                    + " title VARCHAR(255))";
-            String sql_conference = "CREATE TABLE conferences "
-                    + "(proceeding_key VARCHAR(255) not NULL, "
-                    + " title VARCHAR(255))";
+                    + " booktitle VARCHAR(255), "
+                    + " title VARCHAR(2040), "
+                    + " inproceeding_key VARCHAR(255) not NULL) ";
+            String sql_author = "CREATE TABLE author "
+                    + " (author VARCHAR(255), "
+                    + " inproceeding_key VARCHAR(255) not NULL) ";
+            String sql_editor = "CREATE TABLE editor "
+                    + " (editor VARCHAR(255), "
+                    + " proceedings_key VARCHAR(255) not NULL) ";
+            String sql_journal = "CREATE TABLE journal "
+                    + " (title VARCHAR(255), "
+                    + " article_key VARCHAR(255) not NULL) ";
+            String sql_conference = "CREATE TABLE conference "
+                    + " (title VARCHAR(255), "
+                    + " proceedings_key VARCHAR(255) not NULL) ";
 
             statement.executeUpdate(sql_article);
-            statement.executeUpdate(sql_proceeding);
+            statement.executeUpdate(sql_proceedings);
             statement.executeUpdate(sql_inproceeding);
             statement.executeUpdate(sql_author);
             statement.executeUpdate(sql_editor);
@@ -93,43 +92,43 @@ public class DatabaseMDB {
     }
 
     public static void loadArticle(Connection connection) {
-        readFromCSV(connection, "article.csv","INSERT INTO articles (article_key, authors, title, journal, year, pages, volume, number ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 8);
+        readFromCSV(connection, "article.csv","INSERT INTO article (volume, number, pages, journal, year, publisher, title, article_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 8);
     }
     public static void loadProceeding(Connection connection) {
-        readFromCSV(connection, "proceedings.csv","INSERT INTO proceedings (proceeding_key, editor, title, booktitle, year, volume) VALUES (?, ?, ?, ?, ?, ?)", 6);
+        readFromCSV(connection, "proceedings.csv","INSERT INTO proceedings (volume, year, publisher, booktitle, title, proceedings_key) VALUES (?, ?, ?, ?, ?, ?)", 6);
     }
     public static void loadInproceeding(Connection connection) {
-        readFromCSV(connection, "inproceeding.csv","INSERT INTO inproceedings (inproceeding_key, title, booktitle, year, pages) VALUES (?, ?, ?, ?, ?)", 5);
+        readFromCSV(connection, "inproceeding.csv","INSERT INTO inproceeding (pages, year, booktitle, title, inproceeding_key) VALUES (?, ?, ?, ?, ?)", 5);
     }
     public static void loadAuthor(Connection connection) {
-        readFromCSV(connection, "author.csv","INSERT INTO authors (article_key, inproceeding_key, name) VALUES (?, ?, ?)", 3);
+        readFromCSV(connection, "author.csv","INSERT INTO author (author, inproceeding_key) VALUES (?, ?)", 2);
     }
     public static void loadEditor(Connection connection) {
-        readFromCSV(connection, "editor.csv", "INSERT INTO editors (proceeding_key, name) VALUES (?, ?)", 2);
+        readFromCSV(connection, "editor.csv", "INSERT INTO editor (editor, proceedings_key) VALUES (?, ?)", 2);
     }
     public static void loadJournal(Connection connection) {
-        readFromCSV(connection, "journal.csv", "INSERT INTO journals (article_key, title) VALUES (?, ?)", 2);
+        readFromCSV(connection, "journal.csv", "INSERT INTO journal (title, article_key) VALUES (?, ?)", 2);
     }
     public static void loadConference(Connection connection) {
-        readFromCSV(connection, "conference.csv","INSERT INTO conferences (proceeding_key, title) VALUES (?, ?)", 2);
+        readFromCSV(connection, "conference.csv","INSERT INTO conference (title, proceedings_key) VALUES (?, ?)", 2);
     }
 
     public static void loadData(Connection connection) {
         System.out.println("Started loading Data");
         loadArticle(connection);
-        System.out.println("Loaded articles");
+        System.out.println("Loaded article");
         loadProceeding(connection);
         System.out.println("Loaded proceedings");
         loadInproceeding(connection);
-        System.out.println("Loaded inproceedings");
+        System.out.println("Loaded inproceeding");
         loadAuthor(connection);
-        System.out.println("Loaded authors");
+        System.out.println("Loaded author");
         loadEditor(connection);
-        System.out.println("Loaded editors");
+        System.out.println("Loaded editor");
         loadJournal(connection);
-        System.out.println("Loaded journals");
+        System.out.println("Loaded journal");
         loadConference(connection);
-        System.out.println("Loaded conferences");
+        System.out.println("Loaded conference");
     }
 
     // https://stackoverflow.com/questions/37909487/how-can-i-connect-to-mariadb-using-java
