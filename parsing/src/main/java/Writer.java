@@ -1,11 +1,10 @@
 import com.opencsv.*;
 import nodes.AbstractNode;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +69,37 @@ public class Writer {
        }
     }
 
-    public static void main(String[] args) {
-
+    public static void splitCSV(String filename) throws IOException, InterruptedException {
+        File inputfile = new File(filename + ".csv");
+        FileReader reader = new FileReader(inputfile);
+        CSVReader csvReader = new CSVReader(reader,',');
+        int lineCount = 1;
+        int fileCount = 1;
+        File newFile = new File(filename + "-" + fileCount + ".csv");
+        FileWriter writer = new FileWriter(newFile);
+        CSVWriter csvWriter = new CSVWriter(writer);
+        csvWriter.writeNext(CSVTypes.article.header);
+        String[] line;
+        while ((line = csvReader.readNext()) != null) {
+            if (lineCount % 100000 == 0) {
+                fileCount++;
+                newFile = new File(filename + "-" + fileCount + ".csv");
+                writer = new FileWriter(newFile);
+                csvWriter = new CSVWriter(writer);
+                csvWriter.writeNext(CSVTypes.article.header);
+            } else {
+               // System.out.println(Arrays.toString(toRead));
+                csvWriter.writeNext(line);
+                csvWriter.flush();
+                lineCount++;
+            }
+        }
     }
 
-}
+        public static void main(String[] args) throws IOException, InterruptedException {
+        splitCSV("article");
+
+        }
+    }
+
+

@@ -12,11 +12,11 @@ public class Parser {
             Map<String, String> newContents = new HashMap<>();
             newContents.put("key",key);
             AbstractNode node;
-        if (key.startsWith("key='conf")) {
+        if (key.startsWith("'conf")) {
             newContents.put("conference", name);
             node = new ConferenceNode(newContents);
             Writer.writeContent(node, node.getType()+".csv");
-        } else if (key.startsWith("key='journal")) {
+        } else if (key.startsWith("'journal")) {
             newContents.put("journal", contents.get("journal"));
             node = new JournalNode(newContents);
             Writer.writeContent(node,node.getType()+".csv");
@@ -35,7 +35,7 @@ public class Parser {
 
                 Map<String,String> contents = parse(reader, currentEvent,currentEvent);
 
-                String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString();
+                String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString().replaceFirst("key=","");
                 if(entityType == DatabaseEntities.article) {
 
                     node = new ArticleNode(contents);
