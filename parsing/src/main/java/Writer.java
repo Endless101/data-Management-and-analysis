@@ -8,7 +8,7 @@ public class Writer {
 
 
     public enum CSVTypes {
-        article(new String[]{"volume", "number", "pages", "journal", "year", "publisher", "title", "key"}),
+        article(new String[]{"volume", "number", "pages", "journal", "year", "title", "key"}),
         inproceeding(new String[]{"pages", "year", "booktitle", "title", "key"}),
         conference(new String[]{"conference", "key"}),
         editor(new String[]{"editor", "key"}),
