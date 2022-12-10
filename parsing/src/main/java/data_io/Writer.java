@@ -1,7 +1,11 @@
+package data_io;
+
 import com.opencsv.*;
 import nodes.AbstractNode;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Writer {
@@ -22,10 +26,18 @@ public class Writer {
             this.header = header;
         }
 
-        static void createFiles() {
+        public static void createFiles() {
             for (CSVTypes type : CSVTypes.values()) {
                 writeHeader(type.header, type + ".csv");
             }
+        }
+
+        public static Map<String,String> createMap(CSVTypes type) {
+            Map<String,String> attributes = new HashMap<>();
+            for(String attr: type.header) {
+                attributes.put("attr", "null");
+            }
+            return attributes;
         }
 
     }
