@@ -13,11 +13,12 @@ public class ArticleNode extends AbstractNode  {
        contents.put("pages","null");
        contents.put("journal", "null");
        contents.put("year","null");
-       contents.put("publisher","null");
-      // contents.put("booktitle","null");
        contents.put("title", "null");
        contents.put("key", "null");
-      // contents.put("volume",null);
+
+       /*contents.put("publisher","null");
+       contents.put("booktitle","null");
+       contents.put("volume",null);*/
     return contents;
     }
     public ArticleNode(Map<String,String> contents) {
