@@ -53,9 +53,9 @@ public class Writer {
         if (file.exists()) {
             try {
                 String[] content = node.getContent();
-                for (int i = 0; i < content.length; i++) {
+                /*for (int i = 0; i < content.length; i++) {
                     content[i] = content[i].replace("'", "");
-                }
+                }*/
                 FileWriter outputFile = new FileWriter(file, true);
                 CSVWriter writer = new CSVWriter(outputFile, ',', CSVWriter.NO_QUOTE_CHARACTER);
                 writer.writeNext(content);
