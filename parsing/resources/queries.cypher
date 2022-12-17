@@ -1,11 +1,11 @@
- CREATE INDEX article IF NOT EXISTS for (a:article) on a.key;
- CREATE INDEX proceeding IF NOT EXISTS  for (p:proceeding) on p.key;
- CREATE INDEX inproceeding IF NOT EXISTS   for (ip:inproceeding) on ip.key;
- CREATE INDEX author IF NOT EXISTS  for (a:author) on a.key;
- CREATE INDEX conference IF NOT EXISTS  for (c:conference) on c.key
- CREATE INDEX journal IF NOT EXISTS  for (j:journal) on j.key;
- CREATE INDEX editor IF NOT EXISTS  for (e:editor) on e.key;
- CALL db.awaitIndexes()
+ CREATE INDEX article IF NOT EXISTS for (a:article) on (a.key);
+ CREATE INDEX proceeding IF NOT EXISTS  for (p:proceeding) on (p.key);
+ CREATE INDEX inproceeding IF NOT EXISTS   for (ip:inproceeding) on (ip.key);
+ CREATE INDEX author IF NOT EXISTS  for (a:author) on (a.key);
+ CREATE INDEX conference IF NOT EXISTS  for (c:conference) on (c.key);
+ CREATE INDEX journal IF NOT EXISTS  for (j:journal) on (j.key);
+ CREATE INDEX editor IF NOT EXISTS  for (e:editor) on (e.key);
+ CALL db.awaitIndexes();
 
 
 
