@@ -48,6 +48,16 @@ public class DatabaseMDB {
                     + " (proceedings_key VARCHAR(255) not NULL,  "
                     + " title VARCHAR(255)) ";
 
+            // ADD KEYS TO THE DATABASE
+
+            String sql_article_key = "CREATE INDEX article_idx on article(article_key)";
+            String sql_proceedings_key = "CREATE INDEX proceedings_idx on proceedings(proceedings_key)";
+            String sql_inproceeding_key = "CREATE INDEX inproceeding_idx on inproceeding(inproceeding_key)";
+            String sql_author_key = "CREATE INDEX author_idx on author(publication_key)";
+            String sql_editor_key = "CREATE INDEX editor_idx on editor(proceedings_key)";
+            String sql_journal_key = "CREATE INDEX journal_idx on journal(article_key)";
+            String sql_conference_key = "CREATE INDEX conference_idx on conference(proceedings_key)";
+
             statement.executeUpdate(sql_article);
             statement.executeUpdate(sql_proceedings);
             statement.executeUpdate(sql_inproceeding);
@@ -57,6 +67,16 @@ public class DatabaseMDB {
             statement.executeUpdate(sql_conference);
 
             System.out.println("Created tables in given database...");
+
+            statement.executeUpdate(sql_article_key);
+            statement.executeUpdate(sql_proceedings_key);
+            statement.executeUpdate(sql_inproceeding_key);
+            statement.executeUpdate(sql_author_key);
+            statement.executeUpdate(sql_editor_key);
+            statement.executeUpdate(sql_journal_key);
+            statement.executeUpdate(sql_conference_key);
+
+            System.out.println("Created indices in given database...");
         } catch (SQLException e) {
             //Handle errors for JDBC
             e.printStackTrace();
