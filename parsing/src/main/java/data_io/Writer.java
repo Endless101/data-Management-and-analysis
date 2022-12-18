@@ -4,8 +4,7 @@ import com.opencsv.*;
 import nodes.AbstractNode;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class Writer {
@@ -45,6 +44,9 @@ public class Writer {
 
     public static void writeHeader(String[] header, String filename) {
         File file = new File(filename);
+        if(file.exists()) {
+            file.delete();
+        }
         if (!file.exists()) {
             try {
                 FileWriter outputFile = new FileWriter(file);
@@ -66,7 +68,7 @@ public class Writer {
             try {
                 String[] content = node.getContent();
                 for (int i = 0; i < content.length; i++) {
-                    content[i] = content[i].replace("'", "");
+                    content[i] = content[i].replaceAll("[\",']", "");
                 }
                 FileWriter outputFile = new FileWriter(file, true);
                 CSVWriter writer = new CSVWriter(outputFile, ',', CSVWriter.NO_QUOTE_CHARACTER);
