@@ -3,11 +3,17 @@ package databases;
 import nodes.Query;
 import org.neo4j.driver.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 public class DatabaseN4J {
 
-        Session session;
+       static Session session;
         class HandleTransaction extends Thread {
             Session session;
             List<Query> queries;
@@ -37,7 +43,7 @@ public class DatabaseN4J {
         }
         Driver driver;
 
-
+        static String queriesPath = "resources/insert_data.cypher";
        volatile List<Query> queries = new ArrayList<>();
 
         public DatabaseN4J() {
@@ -55,5 +61,26 @@ public class DatabaseN4J {
                 queries.add(query);
             }
             //session.run(query.query);
+        }
+        public static String[] readQueries(String queriesPath) throws IOException {
+            File queriesFile = new File(queriesPath);
+            byte[] fileBytes = Files.readAllBytes(queriesFile.toPath());
+            return (new String(fileBytes)).split(";");
+    }
+    public void executeQueries() {
+            try {
+               String[] queries = readQueries(queriesPath);
+               for(String q: queries) {
+                   session.run(q);
+                   System.out.println("executed: "+ q);
+               }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+    }
+    public static void main(String[] args) throws IOException {
+            DatabaseN4J db = new DatabaseN4J();
+            db.executeQueries();
+            db.driver.close();
         }
     }

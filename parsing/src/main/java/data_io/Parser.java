@@ -35,33 +35,25 @@ public class Parser {
             AbstractNode node;
             if (entityType == DatabaseEntities.proceedings || entityType == DatabaseEntities.article || entityType == DatabaseEntities.inproceedings) {
 
-                Map<String,String> contents = parse(reader, currentEvent,currentEvent);
+                Map<String, String> contents = parse(reader, currentEvent, currentEvent);
 
-                String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString().replaceFirst("key=","");
-                if(entityType == DatabaseEntities.article) {
-
+                String key = currentEvent.asStartElement().getAttributeByName(new QName("key")).toString().replaceFirst("key=", "");
+                if (entityType == DatabaseEntities.article) {
                     node = new ArticleNode(contents);
-                    parseConferenceOrJournal(key,contents);
-
-                } else if(entityType == DatabaseEntities.proceedings) {
-
+                } else if (entityType == DatabaseEntities.proceedings) {
                     node = new ProceedingsNode(contents);
-                    parseConferenceOrJournal(key,contents);
                 } else {
-
                     node = new InproceedingsNode(contents);
-                    parseConferenceOrJournal(key,contents);
                 }
-                Writer.writeContent(node,node.getType()+".csv");
-
-
-            }
+                    parseConferenceOrJournal(key, contents);
+                    Writer.writeContent(node, node.getType() + ".csv");
+                }
         } catch (Exception ignored) {
 
     }
        }
 
-    public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent,XMLEvent startEvent) {
+    public static List<String> parseSingleElement(XMLEventReader reader, XMLEvent currentEvent, XMLEvent startEvent) {
         List<String> typeAndContent = new ArrayList<>();
         if (currentEvent.isStartElement() && !currentEvent.asStartElement().getName().getLocalPart().equals(startEvent.asStartElement().getName().getLocalPart())) {
             try {
@@ -76,7 +68,7 @@ public class Parser {
                             String elementContent = currentEvent.asCharacters().getData();
                             if (elementType == DatabaseEntities.editor || elementType == DatabaseEntities.author) {
                                 PersonNode pnode = parsePerson(elementType, elementContent, startEvent);
-                                Writer.writeContent(pnode, pnode.getType() + ".csv");
+                                    Writer.writeContent(pnode, pnode.getType() + ".csv");
                             } else {
                                 typeAndContent.add(elementType.toString());
                                 typeAndContent.add(elementContent);
@@ -121,7 +113,8 @@ public class Parser {
                 if(!parsedElement.isEmpty()) {
                     String type = parsedElement.get(0);
                     String content = parsedElement.get(1).replace(',',' ');
-                    contents.put(type,content);
+                    if(contents.containsKey(type))
+                        contents.put(type,content);
                 }
             }
           currentEvent = reader.nextEvent();

@@ -7,6 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class Reader {
+
+    public enum DatabaseType {
+        MARIADB,
+        NEO4J;
+    }
     public static void streamReader() throws FileNotFoundException, javax.xml.stream.XMLStreamException {
         System.setProperty("entityExpansionLimit", "0");
         FileInputStream inputStream = new FileInputStream("resources/dblp.xml");

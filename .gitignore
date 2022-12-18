@@ -4,4 +4,4 @@ dblp.xml
 .idea/
 neo4j-parsing/.idea/
 neo4j-parsing/target/
-
+*.class
