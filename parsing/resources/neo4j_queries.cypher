@@ -9,7 +9,7 @@ return a.title; */
 
 
 
-/*match(:inproceeding)-[r:APPEARED_IN]->(:conference {name: ' SIGMOD Conference '})
+/*match(:inproceeding {year: "2022"})-[r:APPEARED_IN]->(:conference {name: ' SIGMOD Conference '})
 return count(r);*/
 
 
@@ -31,14 +31,23 @@ return v order by amountOfArticles desc limit 1;*/
 
 
 
-match(n:editor)-[e:EDITED]->(:proceeding)-[*]->(:conference {name: ' PODS '})
-with n, count(e) as amountEdited
-with *, collect(amountEdited) as mef
-unwind mef as he
-return he;
+/*match(n:editor)-[e:EDITED]->(:proceeding)-[*]->(:conference {name: ' PODS '})
+with n, count(e) as amountEdited order by amountEdited desc limit 1
+match(a:editor)-[v:EDITED]->(:proceeding)-[*]->(:conference {name: ' PODS '})
+with a as a, count(v) as amount, max(amountEdited) as maxx
+where amount = maxx
+return a, amount;*/
 
 
+/*match(n:author)-[r]->(pub)
+where pub:article or pub:inproceeding
+with n,count(r) as publications order by publications desc limit 1
+match(n:author)--()-[rs]->(c:conference)
+return n, count(distinct c);*/
 
 
+match(c:conference)
+where c.name starts with " ICTD "
+return c;
 
 

@@ -34,7 +34,7 @@ public class Writer {
         public static Map<String,String> createMap(CSVTypes type) {
             Map<String,String> attributes = new HashMap<>();
             for(String attr: type.header) {
-                attributes.put("attr", "null");
+                attributes.put(attr, "null");
             }
             return attributes;
         }

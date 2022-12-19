@@ -5,7 +5,7 @@ import java.io.*;
 
 public class DatabaseMDB {
 
-    static final String USER = "peanut222link";
+    static final String USER = "taoufik";
     static final String PASS = "password";
 
     public static void createTables(Connection connection) {
